@@ -24,7 +24,7 @@ import './App.css'
 function AppContent() {
   const { isAuthenticated, isLoading } = useAuth()
   const { setModules, setTopics } = useAppStore()
-  const [dataLoading, setDataLoading] = useState(true)
+  const [, setDataLoading] = useState(true)
 
   // Load data on app start
   useEffect(() => {

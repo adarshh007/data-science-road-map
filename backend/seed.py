@@ -6,7 +6,8 @@ Populates the database with the 150-day Data Science syllabus
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.database import Base
-from app.models import Module, Day, Topic
+from app.models import Module, Day, Topic, User
+from app.core.security import get_password_hash
 from app.core.config import settings
 from datetime import datetime
 
@@ -167,6 +168,18 @@ def seed_database():
     db = SessionLocal()
     
     try:
+        demo_user = db.query(User).filter(User.email == "demo@example.com").first()
+        if not demo_user:
+            db.add(User(
+                email="demo@example.com",
+                username="demo",
+                full_name="Demo Learner",
+                hashed_password=get_password_hash("password123"),
+                is_active=True,
+            ))
+            db.commit()
+            print("Created demo user: demo@example.com")
+
         # Check if data already exists
         existing_modules = db.query(Module).count()
         if existing_modules > 0:

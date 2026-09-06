@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react'
-import { analyticsApi, topicsApi, recommendationsApi } from '../services/api'
+import { analyticsApi, recommendationsApi } from '../services/api'
 import { useAppStore } from '../store/appStore'
-import { BarChart3, BookOpen, CheckCircle, Clock, TrendingUp, Zap } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, BarChart3, BookOpen, Clock, Layers3, TrendingUp, Zap } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import ProgressCard from '../components/ProgressCard'
 import TopicCard from '../components/TopicCard'
 
 export default function DashboardPage() {
-  const { modules, topics } = useAppStore()
+  const { topics } = useAppStore()
   const [analyticsData, setAnalyticsData] = useState<any>(null)
   const [chartData, setChartData] = useState<any[]>([])
   const [recommendations, setRecommendations] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
     loadDashboardData()
@@ -30,17 +32,33 @@ export default function DashboardPage() {
       setRecommendations(recRes.data.recommendations)
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
+      setHasError(true)
     } finally {
       setIsLoading(false)
     }
   }
 
-  if (isLoading || !analyticsData) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex min-h-full items-center justify-center p-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (hasError || !analyticsData) {
+    return (
+      <div className="dashboard-shell flex min-h-full items-center justify-center p-8">
+        <div className="dashboard-empty max-w-md text-center">
+          <div className="dashboard-empty-icon mx-auto mb-5"><Layers3 className="h-6 w-6" /></div>
+          <h1 className="text-2xl font-bold">Your journey is ready to begin</h1>
+          <p className="mt-3 text-muted-foreground">We could not load the dashboard data yet. Open the syllabus to start exploring your learning path.</p>
+          <Link to="/syllabus" className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 font-semibold text-primary-foreground transition hover:opacity-90">
+            Open syllabus <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     )
@@ -55,11 +73,17 @@ export default function DashboardPage() {
   const currentlyLearning = topics.find(t => t.status === 'LEARNING')
 
   return (
-    <div className="p-4 md:p-8 space-y-8">
+    <div className="dashboard-shell p-4 md:p-8 space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Welcome back!</h1>
-        <p className="text-muted-foreground">Track your 150-day Data Science learning journey</p>
+      <div className="dashboard-hero">
+        <div>
+          <p className="dashboard-kicker">Your learning command center</p>
+          <h1 className="text-3xl font-bold mb-2 md:text-4xl">Welcome back!</h1>
+          <p className="max-w-xl text-muted-foreground">Build momentum across your 150-day Data Science journey, one focused session at a time.</p>
+        </div>
+        <Link to="/syllabus" className="dashboard-hero-link">
+          Explore roadmap <ArrowRight className="h-4 w-4" />
+        </Link>
       </div>
 
       {/* Key Metrics */}

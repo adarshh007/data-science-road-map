@@ -76,7 +76,9 @@ async def login(email: str, password: str, db: Session = Depends(get_db)):
 async def get_token(username: str, password: str, db: Session = Depends(get_db)):
     """Alternative token endpoint for OAuth2 compatibility"""
     
-    user = db.query(User).filter(User.username == username).first()
+    user = db.query(User).filter(
+        (User.username == username) | (User.email == username)
+    ).first()
     
     if not user or not verify_password(password, user.hashed_password):
         raise HTTPException(
